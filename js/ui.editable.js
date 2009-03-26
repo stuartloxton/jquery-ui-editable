@@ -16,6 +16,7 @@ $.widget('ui.editable', {
 			$(elem).html( $span );
 			if( this.options.autoFocus ) $input.focus();
 			if( this.options.autoSelect ) $input.select();
+			this._buildButtons();
 			$input.blur(function() {
 				if( elem.editable('option', 'finishOnBlur') ) elem.editable('finish');
 			});
@@ -30,6 +31,23 @@ $.widget('ui.editable', {
 			elem.text( elem.find('input').val() );
 			elem.data('editing', false);
 		}
+	},
+	cancel: function() {
+		var elem = this.element;
+		if( elem.data('editing') ) {
+			elem.text( elem.find('span').attr('title') );
+			elem.data('editing', false);
+		}
+	},
+	_buildButtons: function() {
+		var elem = this.element,
+			self = this;
+		$.each(this.options.buttons, function(label, action) {
+			var $button = $('<button>' + label + '</button>');
+			$button.click(function() { action.apply(self.element[0]); })
+			elem.find('span').append($button);
+			elem.find('input').width( elem.find('input').width() - ($button.outerWidth() + 3) );
+		});
 	}
 });
 
