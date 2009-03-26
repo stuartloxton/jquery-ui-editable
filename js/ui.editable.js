@@ -1,74 +1,34 @@
-//$.ui.inline.defaults = {
-//	save: function() { },
-//	afterSave: function() { },
-//	finishOnBlur: true,
-//	finishOnEnter: true,
-//	buttons: false
-//}
-//$.fn.inline = function() {
-//	this.initialise = function(settings) {
-//		$(this.selector).live('dblclick', function() {
-//			if(!$(this).data('editing')) {
-//				$(this).data('editing', true);
-//				$input = $('<input type="text" />').val( $(this).text() ).width( $(this).width() ).keydown(function(e) {
-//					if(e.keyCode == 13) {
-//						$(this).blur();
-//					}
-//				});
-//				$input.blur(function(e) {
-//					if( settings.save(e) ) {
-//						$(this).parent().data('editing', false);
-//						$(this).replaceWith( $(this).val() );
-//						settings.afterSave();
-//					}
-//				});
-//				$(this).html($input).find('input').focus().select();
-//			}
-//		});
-//	}
-//	if(arguments.length == 0 || (arguments.length == 1 && typeof(arguments[0]) == 'object')) {
-//		this.initialise(arguments[0]);
-//	}
-//}
-
 (function($) {
 
 $.widget('ui.editable', {
 	_init: function() {
-		var options = this.options,
-			self = this;
-		
 		this.element.addClass('ui-editable');
 		this.element.bind(this.options.eventStart, function() {
-			if(!$(this).data('editing')) {
-				var $parent = $(this).parent();
-				$(this).data('editing', true);
-				$input = $('<input />').val( $(this).text() ).width( $(this).width() );
-				$span = $('<span class="ui-inline" title="' + $(this).text() + '" />').append($input)
-				$(this).html( $span );
-				if( options.autoFocus ) $input.focus();
-				if( options.autoSelect ) $input.select();
-				$input.blur( self._blur(this, options) );
-				$input.keydown( self._keydown(this, options) );
-			}
+			$(this).editable('start');
 		});
 	},
-	_finish: function(element) {
-		if( !$(element).editable('option', 'validation') || ($(element).editable('option', 'validation') && $(element).editable('option', 'validation').test( $(element).find('input').val() )) ) {
-			$(element).text( $(element).find('input').val() );
-			$(element).data('editing', false);
+	start: function() {
+		var elem = this.element;
+		if( !elem.data('editing') ) {
+			elem.data('editing', true);
+			$input = $('<input />').val( $(elem).text() ).width( $(elem).width() );
+			$span = $('<span class="ui-inline" title="' + $(elem).text() + '" />').append($input)
+			$(elem).html( $span );
+			if( this.options.autoFocus ) $input.focus();
+			if( this.options.autoSelect ) $input.select();
+			$input.blur(function() {
+				if( elem.editable('option', 'finishOnBlur') ) elem.editable('finish');
+			});
+			$input.keydown(function(e) {
+				if( elem.editable('option', 'finishOnKey') && e.keyCode == elem.editable('option', 'finishOnKey')) elem.editable('finish');
+			});
 		}
 	},
-	_blur: function(element) {
-		var self = this;
-		return function() {
-			if( $(element).editable('option', 'finishOnBlur') ) self._finish(element)
-		}
-	},
-	_keydown: function(element) {
-		var self = this;
-		return function(e) {
-			if( $(element).editable('option', 'finishOnKey') && e.keyCode == $(element).editable('option', 'finishOnKey')) self._finish(element);
+	finish: function() {
+		var elem = this.element;
+		if( !elem.editable('option', 'validation') || (elem.editable('option', 'validation') && elem.editable('option', 'validation').test( elem.find('input').val() )) ) {
+			elem.text( elem.find('input').val() );
+			elem.data('editing', false);
 		}
 	}
 });
