@@ -26,6 +26,20 @@
 						}
 					}
 				});
+				$('#examples li:nth(4) span').editable({ sync: '#examples li:nth(4) input:last' });
+				$('#examples li:nth(5) span').editable({
+					finishOnBlur: false,
+					finishOnKey: false,
+					sync: '#examples li:nth(5) input:last',
+					buttons: {
+						"Cancel": function() {
+							$(this).editable('cancel');
+						},
+						"Save": function() {
+							$(this).editable('finish');
+						}
+					}
+				});
 			});
 		</script>
 	</head>
@@ -45,6 +59,8 @@
 					<li>Triggers on Single Click, finished on enter press only.</li>
 					<li>Triggers on Double Click, must have a number to pass validation. (1)</li>
 					<li>Triggers on Double Click, use buttons to save + cancel</li>
+					<li><span>Triggers on Double Click, syncs with input</span> <input style="font-size: 0.4em" value="" type="text" disabled /></li>
+					<li><span>Triggers on Double Click, uses buttons</span> <input style="font-size: 0.4em" value="" type="text" disabled /></li>
 				</ol>
 			</div>
 		</div>

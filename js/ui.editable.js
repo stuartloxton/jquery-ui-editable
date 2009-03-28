@@ -6,6 +6,9 @@ $.widget('ui.editable', {
 		this.element.bind(this.options.eventStart, function() {
 			$(this).editable('start');
 		});
+		if( this.options.sync ) {
+			$(this.options.sync).val( this.element.text() );
+		}
 	},
 	start: function() {
 		var elem = this.element;
@@ -28,6 +31,9 @@ $.widget('ui.editable', {
 	finish: function() {
 		var elem = this.element;
 		if( !elem.editable('option', 'validation') || (elem.editable('option', 'validation') && elem.editable('option', 'validation').test( elem.find('input').val() )) ) {
+			if(this.options.sync) {
+				$(this.options.sync).val( elem.find('input').val() );
+			}
 			elem.text( elem.find('input').val() );
 			elem.data('editing', false);
 		}
@@ -60,7 +66,8 @@ $.extend($.ui.editable, {
 		autoSelect: true,
 		eventStart: 'dblclick',
 		validation: false,
-		buttons: {}
+		buttons: {},
+		sync: false
 	}
 });
 
