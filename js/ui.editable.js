@@ -20,22 +20,30 @@ $.widget('ui.editable', {
 			if( this.options.autoFocus ) $input.focus();
 			if( this.options.autoSelect ) $input.select();
 			this._buildButtons();
-			$input.blur(function() {
-				if( elem.editable('option', 'finishOnBlur') ) elem.editable('finish');
+			$input.blur(function(e, d) {
+				if( elem.editable('option', 'finishOnBlur') || d === true ) elem.editable('finish');
 			});
 			$input.keydown(function(e) {
-				if( elem.editable('option', 'finishOnKey') && e.keyCode == elem.editable('option', 'finishOnKey')) elem.editable('finish');
+				if( elem.editable('option', 'finishOnKey') && e.keyCode == elem.editable('option', 'finishOnKey')) $(this).trigger('blur', true);
 			});
 		}
 	},
 	finish: function() {
 		var elem = this.element;
-		if( !elem.editable('option', 'validation') || (elem.editable('option', 'validation') && elem.editable('option', 'validation').test( elem.find('input').val() )) ) {
+		if( elem.data('editing') && ( !elem.editable('option', 'validation') || (elem.editable('option', 'validation') && elem.editable('option', 'validation').test( elem.find('input').val() ))) ) {
 			if(this.options.sync) {
 				$(this.options.sync).val( elem.find('input').val() );
+				elem.text( elem.find('input').val() );
+				elem.data('editing', false);
+			} else {
+				/*
+					TODO Fix double save when using blur & enter
+				*/
+				if( this.options.save() ) {
+					elem.text( elem.find('input').val() );
+					elem.data('editing', false);
+				}
 			}
-			elem.text( elem.find('input').val() );
-			elem.data('editing', false);
 		}
 	},
 	cancel: function() {
@@ -67,7 +75,8 @@ $.extend($.ui.editable, {
 		eventStart: 'dblclick',
 		validation: false,
 		buttons: {},
-		sync: false
+		sync: false,
+		save: function() { return true; }
 	}
 });
 

@@ -40,6 +40,10 @@
 						}
 					}
 				});
+				$('#examples li:nth(6)').editable({ save: function() {
+					alert('About to save');
+					return true;
+				} });
 			});
 		</script>
 	</head>
@@ -61,6 +65,7 @@
 					<li>Triggers on Double Click, use buttons to save + cancel</li>
 					<li><span>Triggers on Double Click, syncs with input</span> <input style="font-size: 0.4em" value="" type="text" disabled /></li>
 					<li><span>Triggers on Double Click, uses buttons</span> <input style="font-size: 0.4em" value="" type="text" disabled /></li>
+					<li>Custom save function (Double Click)</li>
 				</ol>
 			</div>
 		</div>
