@@ -26,23 +26,24 @@ $.widget('ui.editable', {
 			$input.keydown(function(e) {
 				if( elem.editable('option', 'finishOnKey') && e.keyCode == elem.editable('option', 'finishOnKey')) $(this).trigger('blur', true);
 			});
+			elem.trigger(this.widgetEventPrefix + 'Start');
 		}
 	},
 	finish: function() {
 		var elem = this.element;
-		if( elem.data('editing') && ( !elem.editable('option', 'validation') || (elem.editable('option', 'validation') && elem.editable('option', 'validation').test( elem.find('input').val() ))) ) {
-			if(this.options.sync) {
-				$(this.options.sync).val( elem.find('input').val() );
-				elem.text( elem.find('input').val() );
-				elem.data('editing', false);
-			} else {
-				/*
-					TODO Fix double save when using blur & enter
-				*/
-				if( this.options.save() ) {
+		if( elem.data('editing') ) {
+			var validation = elem.editable('option', 'validation');
+			var val = elem.find('input').val();
+			if( ($.isFunction( validation ) && validation(val)) || ($.isFunction(validation.test) && validation.test(val)) || !validation) {
+				if(this.options.sync) {
+					$(this.options.sync).val( elem.find('input').val() );
+					elem.text( elem.find('input').val() );
+					elem.data('editing', false);
+				} else {
 					elem.text( elem.find('input').val() );
 					elem.data('editing', false);
 				}
+				elem.trigger(this.widgetEventPrefix + 'Finish');
 			}
 		}
 	},
@@ -51,6 +52,7 @@ $.widget('ui.editable', {
 		if( elem.data('editing') ) {
 			elem.text( elem.find('span').attr('title') );
 			elem.data('editing', false);
+			elem.trigger(this.widgetEventPrefix + 'Cancel');
 		}
 	},
 	_buildButtons: function() {
@@ -67,6 +69,7 @@ $.widget('ui.editable', {
 
 $.extend($.ui.editable, {
 	version: "0.1",
+	eventPrefix: 'edit',
 	defaults: {
 		finishOnKey: 13,
 		finishOnBlur: true,
@@ -75,8 +78,7 @@ $.extend($.ui.editable, {
 		eventStart: 'dblclick',
 		validation: false,
 		buttons: {},
-		sync: false,
-		save: function() { return true; }
+		sync: false
 	}
 });
 
